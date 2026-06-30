@@ -237,10 +237,14 @@ Rules:
 
 ---
 
-# Author
+---
 
-**Rounak Gupta**
+## Author
 
-B.Tech Computer Science & Engineering (2022–2026)
+**Rounak Gupta**  
+B.Tech in Computer Science & Engineering (2022–2026)
 
-Eightfold AI Engineering Intern Assignment
+- GitHub: https://github.com/ROUNAK-KUMAR-GUPTA
+- Project: Eightfold AI Engineering Intern Assignment
+
+---
