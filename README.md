@@ -1,8 +1,8 @@
 # Multi-Source Candidate Data Transformer
 
-A deterministic and extensible candidate data processing pipeline that ingests candidate information from multiple heterogeneous sources (Recruiter CSV, Resume PDF, and GitHub JSON), normalizes fields into canonical representations, merges duplicate records, validates the final schema, and exports the output as NDJSON.
+A deterministic and extensible pipeline that ingests candidate information from multiple sources (Recruiter CSV, Resume PDF, and GitHub JSON), normalizes the data into a canonical format, merges duplicate records, validates the output schema, and exports the final result as NDJSON.
 
-This project was developed as part of the **Eightfold AI Engineering Intern Assignment**.
+This project was developed for the **Eightfold AI Engineering Intern Assignment**.
 
 ---
 
@@ -12,20 +12,13 @@ This project was developed as part of the **Eightfold AI Engineering Intern Assi
   - Recruiter CSV
   - Resume PDF
   - GitHub JSON
-- Normalize:
-  - Names
-  - Emails
-  - Phone numbers (E.164)
-  - Countries (ISO-3166 Alpha-2)
-  - Skills
-  - Dates
-- Merge duplicate candidates using deterministic identity matching
-- Track provenance for every merged field
-- Runtime-configurable output projection
-- Validate output schema using Pydantic
-- Export canonical profiles as NDJSON
-- Fully deterministic output
-- Comprehensive automated test suite (**68 tests**)
+- Normalize names, emails, phone numbers, countries, dates, and skills
+- Merge duplicate candidates using deterministic matching
+- Track field provenance
+- Runtime configurable output projection
+- Validate output using Pydantic
+- Export canonical candidate profiles as NDJSON
+- Deterministic pipeline output
 
 ---
 
@@ -36,58 +29,21 @@ This project was developed as part of the **Eightfold AI Engineering Intern Assi
 - Pytest
 - phonenumbers
 - pycountry
-- Poppler / pdftotext
-- argparse
-
----
-
-# Project Architecture
-
-```
-                    Recruiter CSV
-                          │
-                    CSV Parser
-                          │
-Resume PDF ──► Resume Parser
-                          │
-GitHub JSON ─► GitHub Parser
-                          │
-                    Merge Engine
-                          │
-                 Field Normalizers
-                          │
-                 Schema Validation
-                          │
-                    output.jsonl
-```
+- Poppler (pdftotext)
 
 ---
 
 # Project Structure
 
 ```
-candidate-transformer/
-│
+.
 ├── cli.py
 ├── README.md
 ├── requirements.txt
 ├── output.jsonl
-│
 ├── docs/
-│   ├── design_doc.html
-│   └── demo_script.md
-│
 ├── sample_inputs/
-│   ├── recruiter_export.csv
-│   ├── jane_smith_resume.pdf
-│   ├── github_profile_janesmith.json
-│   ├── github_profile_johndoe.json
-│   └── custom_config.json
-│
 ├── sample_outputs/
-│   ├── default_output.jsonl
-│   └── custom_output.jsonl
-│
 ├── src/
 │   ├── config/
 │   ├── merge/
@@ -96,26 +52,22 @@ candidate-transformer/
 │   ├── validators/
 │   ├── models.py
 │   └── pipeline.py
-│
 └── tests/
-    └── test_pipeline.py
 ```
 
 ---
 
 # Installation
 
-## 1. Clone Repository
+## Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Eightfold---Engineering-Intern_Assignment.git
+git clone https://github.com/ROUNAK-KUMAR-GUPTA/Eightfold---Engineering-Intern_Assignment.git
 
 cd Eightfold---Engineering-Intern_Assignment
 ```
 
----
-
-## 2. Create Virtual Environment
+## Create Virtual Environment
 
 ### Windows
 
@@ -133,9 +85,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
----
-
-## 3. Install Python Dependencies
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -143,21 +93,23 @@ pip install -r requirements.txt
 
 ---
 
-## 4. Install Poppler (Required)
+## Install Poppler (Required)
 
 Resume parsing requires **pdftotext**.
 
 ### Windows
 
-Download Poppler:
+Download:
 
 https://github.com/oschwartz10612/poppler-windows/releases
 
-Extract and add the following folder to your system PATH:
+Extract it and add:
 
 ```
 C:\poppler\poppler-26.02.0\Library\bin
 ```
+
+to the system PATH.
 
 Verify installation:
 
@@ -171,80 +123,61 @@ pdftotext -v
 sudo apt install poppler-utils
 ```
 
-### macOS
-
-```bash
-brew install poppler
-```
-
 ---
 
-# Running the Pipeline
-
-## Default Pipeline
+# Run the Pipeline
 
 ```bash
-python cli.py \
---csv sample_inputs/recruiter_export.csv \
---resume sample_inputs/jane_smith_resume.pdf \
---github sample_inputs/github_profile_janesmith.json \
---github sample_inputs/github_profile_johndoe.json \
--o output.jsonl \
---stats \
+python cli.py ^
+--csv sample_inputs/recruiter_export.csv ^
+--resume sample_inputs/jane_smith_resume.pdf ^
+--github sample_inputs/github_profile_janesmith.json ^
+--github sample_inputs/github_profile_johndoe.json ^
+-o output.jsonl ^
+--stats ^
 --validate
 ```
 
 ---
 
-## Custom Projection
-
-```bash
-python cli.py \
---csv sample_inputs/recruiter_export.csv \
---resume sample_inputs/jane_smith_resume.pdf \
---github sample_inputs/github_profile_janesmith.json \
---github sample_inputs/github_profile_johndoe.json \
---config sample_inputs/custom_config.json \
---include-confidence \
--o custom_output.jsonl
-```
-
----
-
-## Print Output to Terminal
-
-```bash
-python cli.py \
---csv sample_inputs/recruiter_export.csv \
---print
-```
-
----
-
-# Running Tests
+# Run Tests
 
 ```bash
 python -m pytest tests -v
 ```
 
-**Result**
+Output:
 
 ```
-68 tests passed
+68 passed
 ```
 
 ---
 
-# Normalization
+# Architecture
 
-| Field | Output |
-|--------|--------|
-| Phone | E.164 |
-| Country | ISO-3166 Alpha-2 |
-| Email | Lowercase |
-| Name | Title Case |
-| Skills | Canonical Form |
-| Date | YYYY-MM |
+```
+Recruiter CSV
+       │
+       ▼
+   CSV Parser
+       │
+Resume PDF ─► Resume Parser
+       │
+GitHub JSON ─► GitHub Parser
+       │
+       ▼
+  Merge Engine
+       │
+       ▼
+Normalization
+       │
+       ▼
+Schema Validation
+       │
+       ▼
+ output.jsonl
+```
 
 ---
 
@@ -258,137 +191,48 @@ Candidate matching priority:
 
 Rules:
 
-- Normalize before matching
-- Merge scalar fields using source priority
-- Merge list fields using union + deduplication
-- Preserve provenance
-- Generate deterministic candidate IDs
-
----
-
-# Confidence Model
-
-```
-Base Confidence = Source Priority
-
-+0.1  for corroborating sources
-
--0.2  for conflicting values
-
-Clamp between 0 and 1
-```
-
----
-
-# Projection Configuration
-
-Supports runtime JSON configuration.
-
-Features:
-
-- Field selection
-- Field renaming
-- Confidence metadata
-- Missing field policy
-- Nested field projection
-
-Example:
-
-```json
-{
-  "fields": [
-    {
-      "path":"full_name"
-    },
-    {
-      "path":"emails[0]",
-      "output_name":"contact_email"
-    }
-  ]
-}
-```
-
----
-
-# Sample Output
-
-```json
-{
-  "candidate_id": "c_65536e21c61f",
-  "full_name": "Jane Smith",
-  "emails": [
-    "jane.smith@techcorp.com"
-  ],
-  "phones": [
-    "+14085551234"
-  ],
-  "skills": [
-    "python",
-    "javascript",
-    "docker",
-    "kubernetes"
-  ]
-}
-```
+- Normalize all fields before matching.
+- Merge scalar fields using source priority.
+- Merge list fields using union and deduplication.
+- Preserve provenance.
+- Generate deterministic candidate IDs.
 
 ---
 
 # Design Decisions
 
-- Modular parser architecture
-- Deterministic merge engine
-- Runtime configurable projections
-- Pydantic schema validation
-- Provenance tracking
-- Separation of parsing, normalization, merging, and validation
-- Fully deterministic output
-
----
-
-# Edge Cases Handled
-
-- Missing email
-- Invalid phone number
-- Duplicate candidates
-- Empty CSV
-- Missing GitHub fields
-- Corrupted resume
-- Missing resume
-- Conflicting candidate information
-- Invalid dates
-- Empty inputs
+- Modular parser architecture for easy extensibility.
+- Deterministic merge engine using normalized identifiers.
+- Runtime configurable output projection.
+- Pydantic schema validation.
+- Separation of parsing, normalization, merging, and validation.
 
 ---
 
 # Assumptions
 
-- Resume extraction uses **pdftotext** rather than ML/NLP.
-- GitHub profiles are provided as JSON rather than fetched from the live API.
-- LinkedIn integration is intentionally omitted due to platform restrictions.
-- Skill normalization uses a deterministic alias mapping.
+- Resume parsing uses **pdftotext**.
+- GitHub profiles are provided as JSON files.
+- LinkedIn integration is intentionally excluded.
 - Candidate IDs are deterministic.
 
 ---
 
 # Results
 
-- Parsed candidate data from multiple heterogeneous sources.
+- Parsed data from multiple heterogeneous sources.
 - Generated canonical candidate profiles.
 - Exported validated NDJSON output.
-- Runtime configurable projections.
-- Deterministic merge behavior.
-- **68/68 automated tests passed successfully.**
+- Passed **68/68 automated tests**.
 
 ---
 
 # Future Improvements
 
-- LinkedIn connector
-- GitHub live API integration
+- LinkedIn parser
+- Live GitHub API integration
 - OCR support for scanned resumes
-- ML-based resume parsing
-- Fuzzy matching for candidate identity
-- Semantic skill normalization
+- Fuzzy matching
 - REST API deployment
 
 ---
@@ -400,5 +244,3 @@ Example:
 B.Tech Computer Science & Engineering (2022–2026)
 
 Eightfold AI Engineering Intern Assignment
-
----
