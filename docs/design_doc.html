@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+  size: A4;
+  margin: 7mm 7mm 5mm 7mm;
+}
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 6.2pt;
+  line-height: 1.13;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  font-size: 9.5pt;
+  margin: 0 0 0px 0;
+  text-align: center;
+}
+.subtitle {
+  text-align: center;
+  font-size: 6.5pt;
+  color: #555;
+  margin: 0 0 3px 0;
+}
+h2 {
+  font-size: 7.5pt;
+  margin: 3px 0 1px 0;
+  border-bottom: 0.8px solid #2c3e50;
+  padding-bottom: 0.5px;
+  color: #2c3e50;
+}
+h3 {
+  font-size: 6.5pt;
+  margin: 2px 0 0.5px 0;
+  color: #34495e;
+}
+p {
+  margin: 0.5px 0;
+  text-align: justify;
+}
+ul, ol {
+  margin: 0.5px 0 0.5px 9px;
+  padding: 0;
+}
+li {
+  margin: 0.2px 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1px 0;
+  font-size: 6pt;
+}
+th, td {
+  border: 0.8px solid #bbb;
+  padding: 0.8px 2px;
+  text-align: left;
+}
+th {
+  background: #ecf0f1;
+  font-weight: 600;
+}
+.diagram {
+  font-family: 'Courier New', monospace;
+  font-size: 5.5pt;
+  line-height: 1.08;
+  background: #f8f9fa;
+  border: 0.8px solid #ddd;
+  padding: 2px 4px;
+  margin: 1px 0;
+  white-space: pre;
+}
+.two-col {
+  display: flex;
+  gap: 5px;
+}
+.two-col > div {
+  flex: 1;
+}
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<h1>Multi-Source Candidate Data Transformer</h1>
+<p class="subtitle">Technical Design &mdash; Aman Kumar (aman.kumar.dev2025@gmail.com)</p>
+
+<h2>1. Problem &amp; Objective</h2>
+<p>Candidate data arrives from heterogeneous sources&mdash;recruiter CSVs, resume PDFs, GitHub profiles, LinkedIn&mdash;each with different schemas, fields, and formats. The pipeline <b>ingests</b> these sources, <b>normalizes</b> fields to canonical forms, <b>merges/deduplicates</b> into one canonical profile per candidate, <b>tracks provenance</b> (source, method, confidence), and <b>projects</b> output at runtime via configurable layer&mdash;while gracefully degrading on missing/garbage input.</p>
+
+<h2>2. Architecture</h2>
+<div class="diagram">CSV ──→ ┐   PDF ──→ ┐   GitHub ──→ ┐   LinkedIn ──→ ┐
+         │            │             │              │
+     ┌───▼────────────▼─────────────▼──────────────▼───┐
+     │          Parser Layer (per source type)          │
+     └────────────────────┬────────────────────────────┘
+                          │ List[RawCandidate]
+     ┌────────────────────▼────────────────────────────┐
+     │   Normalization: Phone→E.164 Date→YYYY-MM       │
+     │   Country→ISO α2 Email→lower Skills→canonical   │
+     └────────────────────┬────────────────────────────┘
+                          │
+     ┌────────────────────▼────────────────────────────┐
+     │   Merge Engine: Match(email→phone→name)          │
+     │   Priority: resume(.9)>csv(.8)>github(.7)        │
+     │   Conf: base×pri +0.1/corroborate −0.2/conflict  │
+     └────────────────────┬────────────────────────────┘
+                          │ List[CanonicalProfile]
+     ┌────────────────────▼────────────────────────────┐
+     │   Projection (runtime JSON): select·rename·norm  │
+     │   include_confidence·on_missing(null|omit|error) │
+     └────────────────────┬────────────────────────────┘
+                          ↓
+               Output: NDJSONL · Validation · CLI</div>
+
+<h2>3. Data Model &amp; Provenance</h2>
+<div class="two-col">
+<div>
+<h3>Canonical Profile (Pydantic v2)</h3>
+<ul>
+  <li><b>candidate_id</b>: MD5 of first match key</li>
+  <li><b>full_name</b>; <b>emails</b>(lowercase,dedup); <b>phones</b>(E.164)</li>
+  <li><b>locations</b>: List[{city, state, country(ISO α2)}]</li>
+  <li><b>skills</b>: List[str] (canonical, deduped)</li>
+  <li><b>experience</b>: List[{company, title, start, end, summary}]</li>
+  <li><b>education</b>: List[{institution, degree, field, end_year}]</li>
+  <li><b>links</b>: List[{type, url}]; <b>websites</b>: List[{type, url}]</li>
+  <li><b>years_experience</b>: Opt[float]; <b>summary</b>: Opt[str]</li>
+</ul>
+</div>
+<div>
+<h3>Provenance per field</h3>
+<ul>
+  <li><b>source</b>: SourceType enum (recruiter_csv, resume_pdf, github_api)</li>
+  <li><b>method</b>: direct|priority_pick|conflict_resolved|concatenated</li>
+  <li><b>raw_value</b>: original before normalization</li>
+  <li><b>confidence</b>: float [0,1]</li>
+</ul>
+<h3>Confidence Model</h3>
+<p>conf = source_priority × base; corroborate +0.1; conflict −0.2; clamped [0,1]</p>
+</div>
+</div>
+
+<h2>4. Sources &amp; Priority</h2>
+<table>
+<tr><th>Source</th><th>Type</th><th>Pri</th><th>Parser</th><th>Key Fields</th></tr>
+<tr><td>Recruiter CSV</td><td>Structured</td><td>0.8</td><td>csv_parser</td><td>name, email, phone, company, title, skills, location</td></tr>
+<tr><td>Resume PDF</td><td>Unstructured</td><td>0.9</td><td>resume_parser</td><td>name, email, phone, skills, experience, education, links</td></tr>
+<tr><td>GitHub JSON</td><td>Structured/API</td><td>0.7</td><td>github_parser</td><td>name, bio, location, blog, email, languages→skills</td></tr>
+</table>
+
+<h2>5. Merge Algorithm</h2>
+<ol>
+  <li><b>Match</b>: Group by identity keys: email(exact)→phone(E.164)→norm-name; first match wins, transitive.</li>
+  <li><b>Normalize</b>: Apply all normalizers to each raw candidate before merge.</li>
+  <li><b>Merge scalars</b>: Highest-priority wins. Agreement→+0.1; disagreement→−0.2(conflict_resolved).</li>
+  <li><b>Merge lists</b>: Union+dedup; confidence=weighted avg of contributing sources.</li>
+  <li><b>Provenance</b>: Every field records (source, method, raw_value, confidence).</li>
+  <li><b>ID</b>: MD5 hex of first match key→determinism.</li>
+</ol>
+
+<h2>6. Projection Layer</h2>
+<p>Runtime JSON config reshapes output without code changes: <b>fields</b> (select, rename via output_name, nested paths like phones[0]); <b>normalization</b> (E164, canonical, lowercase, uppercase, trim); <b>include_confidence</b> ({value,confidence,sources} wrapper); <b>on_missing</b> (null|omit|error).</p>
+
+<h2>7. Robustness &amp; Scalability</h2>
+<p><b>Graceful degradation</b>: Missing sources→skip w/ warning; garbage rows→empty candidates; bad phones/dates→raw w/ low confidence. <b>Determinism</b>: Sorted processing; MD5 IDs from stable keys; byte-identical on repeated runs. <b>Scalability</b>: O(N) hash-grouped matching; streaming NDJSONL; parallelizable parsers. <b>Extensibility</b>: New sources→parser+priority; new normalizers→registry; projection→declarative JSON.</p>
+
+<h2>8. Tech Stack &amp; Structure</h2>
+<div class="two-col">
+<div>
+<p>Python 3.11 · Pydantic v2 · phonenumbers(E.164) · pycountry(ISO-3166) · pdftotext(resume) · pytest(68 tests) · argparse CLI · NDJSONL</p>
+</div>
+<div>
+<p><code>src/models.py</code> Schema · <code>src/normalizers/fields.py</code> Normalizers · <code>src/parsers/{csv,resume,github}</code> Parsers · <code>src/merge/engine.py</code> Merge+Conf · <code>src/config/projection.py</code> Projection · <code>src/validators/schema.py</code> Validation · <code>src/pipeline.py</code> Orchestrator · <code>cli.py</code> CLI</p>
+</div>
+</div>
+
+</body>
+</html>

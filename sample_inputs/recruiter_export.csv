@@ -1,0 +1,5 @@
+name,email,phone,current_company,title,location,linkedin,github,skills,years_experience
+Jane Smith,jane.smith@techcorp.com,(408) 555-1234,TechCorp Inc,Senior Software Engineer,"San Jose, CA",https://linkedin.com/in/janesmith,https://github.com/janesmith,"Python,JavaScript,Docker,Kubernetes",8
+Jane Smith,jane.smith@gmail.com,408-555-1234,TechCorp Inc,Senior Software Engineer,"San Jose, CA",https://linkedin.com/in/janesmith,https://github.com/janesmith,"Python,JS,Docker,React",8
+John Doe,john.doe@startup.io,+1-650-555-5678,StartupXYZ,Product Manager,"San Francisco, CA",https://linkedin.com/in/johndoe,,"Agile,Scrum,Product Strategy,JIRA",5
+Alice Chen,alice.chen@bigdata.com,(510) 555-9012,BigData Corp,Data Scientist,"Oakland, CA",https://linkedin.com/in/alicechen,https://github.com/alicechen,"Python,ML,TensorFlow,SQL",6

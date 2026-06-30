@@ -1,0 +1,65 @@
+"""Create a sample resume PDF for testing."""
+
+import subprocess
+
+html = """
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Jane Smith Resume</title></head>
+<body style="font-family: Arial, sans-serif; margin: 40px;">
+
+<h1 style="margin-bottom: 2px;">Jane Smith</h1>
+<p style="color: #555; margin-top: 2px;">
+  jane.smith@techcorp.com | jane.smith@gmail.com | (408) 555-1234<br>
+  San Jose, CA | https://linkedin.com/in/janesmith | https://github.com/janesmith
+</p>
+
+<h2>Summary</h2>
+<p>Experienced Senior Software Engineer with 8+ years of expertise in building scalable backend systems. 
+Proficient in Python, JavaScript, and cloud technologies. Passionate about distributed systems and DevOps practices.</p>
+
+<h2>Experience</h2>
+
+<p><strong>Senior Software Engineer</strong> at TechCorp Inc<br>
+<em>January 2020 – Present</em><br>
+Led the migration of monolithic services to microservices architecture using Kubernetes and Docker. 
+Mentored a team of 5 junior engineers. Designed and implemented REST APIs serving 10M+ daily requests.</p>
+
+<p><strong>Software Engineer</strong> at DataSystems LLC<br>
+<em>June 2017 – December 2019</em><br>
+Built data processing pipelines in Python. Reduced processing time by 40% through parallelization. 
+Implemented CI/CD pipelines using Jenkins.</p>
+
+<p><strong>Junior Developer</strong> at WebStartup<br>
+<em>August 2015 – May 2017</em><br>
+Developed React-based frontend applications. Contributed to Node.js backend services.</p>
+
+<h2>Education</h2>
+
+<p><strong>Bachelor of Science in Computer Science</strong><br>
+University of California, Berkeley<br>
+<em>2015</em></p>
+
+<h2>Skills</h2>
+<p>Python, JavaScript, TypeScript, Docker, Kubernetes, React, Node.js, PostgreSQL, MongoDB, AWS, CI/CD, REST API, Git, Jenkins, GraphQL</p>
+
+</body>
+</html>
+"""
+
+with open("/workspace/candidate-transformer/sample_inputs/jane_smith_resume.html", "w") as f:
+    f.write(html)
+
+# Convert to PDF
+subprocess.run([
+    "wkhtmltopdf",
+    "--page-size", "A4",
+    "--margin-top", "20mm",
+    "--margin-bottom", "20mm",
+    "--margin-left", "20mm",
+    "--margin-right", "20mm",
+    "/workspace/candidate-transformer/sample_inputs/jane_smith_resume.html",
+    "/workspace/candidate-transformer/sample_inputs/jane_smith_resume.pdf",
+], capture_output=True)
+
+print("Resume PDF created successfully")

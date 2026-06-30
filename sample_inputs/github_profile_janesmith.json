@@ -1,0 +1,44 @@
+{
+  "login": "janesmith",
+  "name": "Jane Smith",
+  "bio": "Senior Software Engineer @ TechCorp | Python, JavaScript, Cloud | Building scalable distributed systems",
+  "location": "San Jose, CA",
+  "blog": "https://janesmith.dev",
+  "email": "jane.smith@techcorp.com",
+  "public_repos": 28,
+  "created_at": "2015-03-15T00:00:00Z",
+  "languages": {
+    "Python": 2500000,
+    "JavaScript": 1800000,
+    "TypeScript": 900000,
+    "Go": 300000,
+    "Shell": 150000
+  },
+  "repos": [
+    {
+      "name": "microservices-framework",
+      "description": "A lightweight framework for building microservices in Python",
+      "language": "Python"
+    },
+    {
+      "name": "react-dashboard",
+      "description": "Real-time analytics dashboard built with React and D3",
+      "language": "JavaScript"
+    },
+    {
+      "name": "k8s-deploy-tools",
+      "description": "Deployment automation tools for Kubernetes",
+      "language": "Go"
+    },
+    {
+      "name": "data-pipeline-lib",
+      "description": "Library for building efficient data processing pipelines",
+      "language": "Python"
+    },
+    {
+      "name": "cli-task-runner",
+      "description": "A CLI task runner for automating development workflows",
+      "language": "TypeScript"
+    }
+  ]
+}

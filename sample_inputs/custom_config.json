@@ -1,0 +1,59 @@
+{
+  "fields": [
+    {
+      "to": "full_name",
+      "from": "full_name",
+      "type": "string",
+      "required": true
+    },
+    {
+      "to": "contact_email",
+      "from": "emails[0]",
+      "type": "string",
+      "required": false
+    },
+    {
+      "to": "phone",
+      "from": "phones[0]",
+      "type": "string",
+      "normalize": "E164"
+    },
+    {
+      "to": "experience",
+      "from": "experience",
+      "type": "array"
+    },
+    {
+      "to": "location",
+      "from": "locations[0]",
+      "type": "string"
+    },
+    {
+      "to": "github_url",
+      "from": "links.github",
+      "type": "string"
+    },
+    {
+      "to": "linkedin_url",
+      "from": "links.linkedin",
+      "type": "string"
+    },
+    {
+      "to": "yoe",
+      "from": "years_experience",
+      "type": "number"
+    },
+    {
+      "to": "current_role",
+      "from": "experience[0].title",
+      "type": "string"
+    },
+    {
+      "to": "current_company",
+      "from": "experience[0].company",
+      "type": "string"
+    }
+  ],
+  "include_confidence": true,
+  "on_missing": "null"
+}

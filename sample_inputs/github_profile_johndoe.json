@@ -1,0 +1,26 @@
+{
+  "login": "johndoe",
+  "name": "John Doe",
+  "bio": "Product Manager | Building great products that users love",
+  "location": "San Francisco, CA",
+  "blog": "",
+  "email": "john.doe@startup.io",
+  "public_repos": 5,
+  "created_at": "2020-01-10T00:00:00Z",
+  "languages": {
+    "Python": 50000,
+    "JavaScript": 30000
+  },
+  "repos": [
+    {
+      "name": "product-roadmap-tool",
+      "description": "A simple tool for managing product roadmaps",
+      "language": "Python"
+    },
+    {
+      "name": "user-feedback-analyzer",
+      "description": "Analyze user feedback sentiment",
+      "language": "JavaScript"
+    }
+  ]
+}
