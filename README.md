@@ -141,6 +141,9 @@ python cli.py ^
 ---
 
 # Run Tests
+```bash
+$env:Path += ";C:\poppler\poppler-26.02.0\Library\bin"
+```
 
 ```bash
 python -m pytest tests -v
